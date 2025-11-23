@@ -7,17 +7,24 @@ import { Label } from '@/components/ui/label';
 import Link from 'next/link';
 import GoogleLogo from './ui/google-logo';
 import { SignUpFormValues } from '@/types/form';
-import { signUpAction } from '@/actions/auth';
 import FormErrorLabel from './ui/form-error';
+import { useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 
-export default function SignUpForm() {
+interface SignUpFormProps {
+    signUpAction: (formData: FormData) => Promise<unknown>;
+}
+
+export default function SignUpForm({ signUpAction }: SignUpFormProps) {
     const {
         register,
         handleSubmit,
         getValues,
-        reset,
         formState: { errors },
     } = useForm<SignUpFormValues>();
+
+    const [pending, startTransition] = useTransition();
+    const router = useRouter();
 
     const onSubmit: SubmitHandler<SignUpFormValues> = async ({
         fullName,
@@ -30,8 +37,15 @@ export default function SignUpForm() {
         formData.append('email', email);
         formData.append('password', password);
 
-        await signUpAction(formData);
-        reset();
+        startTransition(() => {
+            signUpAction(formData)
+                .then(() => {
+                    router.push('/dashboard');
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+        });
     };
 
     return (
@@ -141,7 +155,7 @@ export default function SignUpForm() {
                     </div>
 
                     <Button type='submit' className='w-full'>
-                        Sign In
+                        {pending ? 'Signing up...' : 'Sign Up'}
                     </Button>
                 </div>
 

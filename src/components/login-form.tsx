@@ -8,14 +8,22 @@ import GoogleLogo from './ui/google-logo';
 import { SubmitHandler, useForm } from 'react-hook-form';
 import { LoginFormValues } from '@/types/form';
 import FormErrorLabel from './ui/form-error';
-import { loginAction } from '@/actions/auth';
+import { useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 
-export default function LoginForm() {
+interface LoginFormProps {
+    loginAction: (formData: FormData) => Promise<unknown>;
+}
+
+export default function LoginForm({ loginAction }: LoginFormProps) {
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm<LoginFormValues>();
+
+    const [pending, startTransition] = useTransition();
+    const router = useRouter();
 
     const onSubmit: SubmitHandler<LoginFormValues> = async ({
         email,
@@ -26,7 +34,15 @@ export default function LoginForm() {
         formData.append('email', email);
         formData.append('password', password);
 
-        await loginAction(formData);
+        startTransition(() => {
+            loginAction(formData)
+                .then(() => {
+                    router.push('/dashboard');
+                })
+                .catch((err) => {
+                    console.error(err);
+                });
+        });
     };
 
     return (
@@ -84,7 +100,9 @@ export default function LoginForm() {
                         <FormErrorLabel error={errors.password?.message} />
                     </div>
 
-                    <Button className='w-full'>Sign In</Button>
+                    <Button className='w-full'>
+                        {pending ? 'Signing in...' : 'Sign In'}
+                    </Button>
                 </div>
 
                 <div className='my-6 grid grid-cols-[1fr_auto_1fr] items-center gap-3'>
