@@ -1,10 +1,10 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import {
     Dialog,
-    DialogClose,
     DialogContent,
     DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -12,10 +12,17 @@ import {
 
 import { PlusIcon } from 'lucide-react';
 import TransactionForm from './transaction-form';
+import { useState } from 'react';
 
 export default function AddTransactionDialog() {
+    const [open, setOpen] = useState(false);
+
+    const handleSuccess = () => {
+        setOpen(false);
+    };
+
     return (
-        <Dialog>
+        <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
                 <Button>
                     <PlusIcon className='mr-2 h-4 w-4' />
@@ -24,14 +31,14 @@ export default function AddTransactionDialog() {
             </DialogTrigger>
             <DialogContent className='sm:max-w-[425px]'>
                 <DialogHeader>
-                    <DialogTitle>Edit profile</DialogTitle>
+                    <DialogTitle>Add Transaction</DialogTitle>
                     <DialogDescription>
-                        Make changes to your profile here. Click save when
-                        you&apos;re done.
+                        Add a new transaction here. Fill in the details and
+                        click &quot;Save changes&quot; when you&apos;re done.
                     </DialogDescription>
                 </DialogHeader>
 
-                <TransactionForm />
+                <TransactionForm onSuccess={handleSuccess} />
             </DialogContent>
         </Dialog>
     );

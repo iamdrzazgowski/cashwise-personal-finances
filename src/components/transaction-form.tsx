@@ -14,9 +14,10 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { DialogFooter } from './ui/dialog';
 import { DialogClose } from '@radix-ui/react-dialog';
+import { Controller, useForm, useWatch } from 'react-hook-form';
 
 export interface TransactionFormData {
-    type: 'income' | 'expense';
+    type: 'INCOME' | 'EXPENSE';
     title: string;
     category: string;
     amount: number;
@@ -24,97 +25,152 @@ export interface TransactionFormData {
     note: string | null;
 }
 
-const type = 'income';
+export default function TransactionForm({
+    onSuccess,
+}: {
+    onSuccess: () => void;
+}) {
+    const {
+        register,
+        handleSubmit,
+        control,
+        formState: { errors },
+    } = useForm<TransactionFormData>({
+        defaultValues: {
+            type: 'INCOME',
+            note: null,
+        },
+    });
 
-export default function TransactionForm() {
+    const type = useWatch({ control, name: 'type' });
+
+    const onSubmit = (data: TransactionFormData) => {
+        console.log(data);
+        onSuccess();
+    };
+
     return (
-        <form>
+        <form onSubmit={handleSubmit(onSubmit)}>
             <div className='space-y-4 py-4'>
                 <div className='space-y-2'>
-                    <Label htmlFor='type'>Typ transakcji</Label>
-                    <Select>
-                        <SelectTrigger id='type'>
-                            <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value='income'>Przychód</SelectItem>
-                            <SelectItem value='expense'>Wydatek</SelectItem>
-                        </SelectContent>
-                    </Select>
-                </div>
-
-                <div className='space-y-2'>
-                    <Label htmlFor='title'>Tytuł</Label>
-                    <Input
-                        id='title'
-                        placeholder='np. Zakupy spożywcze'
-                        required
+                    <Label htmlFor='type'>Transaction type</Label>
+                    <Controller
+                        name='type'
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field }) => (
+                            <Select
+                                onValueChange={field.onChange}
+                                value={field.value}>
+                                <SelectTrigger>
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value='INCOME'>
+                                        Income
+                                    </SelectItem>
+                                    <SelectItem value='EXPENSE'>
+                                        Expense
+                                    </SelectItem>
+                                </SelectContent>
+                            </Select>
+                        )}
                     />
                 </div>
 
                 <div className='space-y-2'>
-                    <Label htmlFor='category'>Kategoria</Label>
-                    <Select required>
-                        <SelectTrigger id='category'>
-                            <SelectValue placeholder='Wybierz kategorię' />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {type === 'income' ? (
-                                <>
-                                    <SelectItem value='Pensja'>
-                                        Pensja
-                                    </SelectItem>
-                                    <SelectItem value='Dodatkowy dochód'>
-                                        Dodatkowy dochód
-                                    </SelectItem>
-                                    <SelectItem value='Zwrot'>Zwrot</SelectItem>
-                                </>
-                            ) : (
-                                <>
-                                    <SelectItem value='Żywność'>
-                                        Żywność
-                                    </SelectItem>
-                                    <SelectItem value='Transport'>
-                                        Transport
-                                    </SelectItem>
-                                    <SelectItem value='Rachunki'>
-                                        Rachunki
-                                    </SelectItem>
-                                    <SelectItem value='Rozrywka'>
-                                        Rozrywka
-                                    </SelectItem>
-                                    <SelectItem value='Jedzenie na mieście'>
-                                        Jedzenie na mieście
-                                    </SelectItem>
-                                </>
-                            )}
-                        </SelectContent>
-                    </Select>
+                    <Label htmlFor='title'>Title</Label>
+                    <Input
+                        id='title'
+                        placeholder='e.g. Grocery shopping'
+                        {...register('title', {
+                            required: true,
+                        })}
+                    />
                 </div>
 
                 <div className='space-y-2'>
-                    <Label htmlFor='amount'>Kwota (PLN)</Label>
+                    <Label htmlFor='category'>Category</Label>
+                    <Controller
+                        name='category'
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field }) => (
+                            <Select
+                                onValueChange={field.onChange}
+                                value={field.value}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder='Select a category' />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    {type === 'INCOME' ? (
+                                        <>
+                                            <SelectItem value='Salary'>
+                                                Salary
+                                            </SelectItem>
+                                            <SelectItem value='Additional income'>
+                                                Additional income
+                                            </SelectItem>
+                                            <SelectItem value='Refund'>
+                                                Refund
+                                            </SelectItem>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <SelectItem value='Food'>
+                                                Food
+                                            </SelectItem>
+                                            <SelectItem value='Transport'>
+                                                Transport
+                                            </SelectItem>
+                                            <SelectItem value='Bills'>
+                                                Bills
+                                            </SelectItem>
+                                            <SelectItem value='Entertainment'>
+                                                Entertainment
+                                            </SelectItem>
+                                            <SelectItem value='Dining out'>
+                                                Dining out
+                                            </SelectItem>
+                                        </>
+                                    )}
+                                </SelectContent>
+                            </Select>
+                        )}
+                    />
+                </div>
+
+                <div className='space-y-2'>
+                    <Label htmlFor='amount'>Amount (PLN)</Label>
                     <Input
                         id='amount'
                         type='number'
                         step='0.01'
                         min='0'
                         placeholder='0.00'
-                        required
+                        {...register('amount', {
+                            required: true,
+                            valueAsNumber: true,
+                        })}
                     />
                 </div>
 
                 <div className='space-y-2'>
-                    <Label htmlFor='date'>Data</Label>
-                    <Input id='date' type='date' required />
+                    <Label htmlFor='date'>Date</Label>
+                    <Input
+                        id='date'
+                        type='date'
+                        {...register('date', { required: true })}
+                    />
                 </div>
 
                 <div className='space-y-2'>
-                    <Label htmlFor='note'>Notatka (opcjonalna)</Label>
+                    <Label htmlFor='note'>Note (optional)</Label>
                     <Textarea
                         id='note'
-                        placeholder='Dodatkowe informacje...'
+                        placeholder='Additional information...'
                         rows={3}
+                        {...register('note')}
                     />
                 </div>
             </div>
