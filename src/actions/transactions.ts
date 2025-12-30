@@ -20,3 +20,12 @@ export async function createTransactionAction(data: TransactionFormData) {
     await transactionRepository.create(session.user.id, transactionData);
     revalidatePath('/dashboard/transactions');
 }
+
+export async function deleteTransactionAction(transactionId: string) {
+    const session = await auth.api.getSession({ headers: await headers() });
+
+    if (!session) throw new Error('There is no valid session');
+
+    await transactionRepository.delete(session.user.id, transactionId);
+    revalidatePath('/dashboard/transactions');
+}

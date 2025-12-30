@@ -1,4 +1,5 @@
 'use client';
+
 import { Button } from '@/components/ui/button';
 import {
     Table,
@@ -13,91 +14,26 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-
-type TransactionType = 'income' | 'expense';
+import { deleteTransactionAction } from '@/actions/transactions';
 
 interface Transaction {
     id: string;
-    description: string;
+    type: 'INCOME' | 'EXPENSE';
+    title: string;
     category: string;
     amount: number;
-    type: TransactionType;
-    date: string;
+    date: Date;
+    note: string | null;
 }
 
-// Sample data
-const transactions: Transaction[] = [
-    {
-        id: '1',
-        description: 'Wynagrodzenie',
-        category: 'Pensja',
-        amount: 5000.0,
-        type: 'income',
-        date: '2025-12-24',
-    },
-    {
-        id: '2',
-        description: 'Zakupy spożywcze',
-        category: 'Żywność',
-        amount: 320.5,
-        type: 'expense',
-        date: '2025-12-23',
-    },
-    {
-        id: '3',
-        description: 'Abonament Netflix',
-        category: 'Rozrywka',
-        amount: 49.0,
-        type: 'expense',
-        date: '2025-12-22',
-    },
-    {
-        id: '4',
-        description: 'Sprzedaż online',
-        category: 'Dodatkowy dochód',
-        amount: 850.0,
-        type: 'income',
-        date: '2025-12-21',
-    },
-    {
-        id: '5',
-        description: 'Rachunki za prąd',
-        category: 'Rachunki',
-        amount: 180.0,
-        type: 'expense',
-        date: '2025-12-20',
-    },
-    {
-        id: '6',
-        description: 'Restauracja',
-        category: 'Jedzenie na mieście',
-        amount: 125.5,
-        type: 'expense',
-        date: '2025-12-19',
-    },
-    {
-        id: '7',
-        description: 'Zwrot podatku',
-        category: 'Zwrot',
-        amount: 450.0,
-        type: 'income',
-        date: '2025-12-18',
-    },
-    {
-        id: '8',
-        description: 'Ubezpieczenie samochodu',
-        category: 'Transport',
-        amount: 280.0,
-        type: 'expense',
-        date: '2025-12-17',
-    },
-];
-
-export function TransactionsTable() {
+export function TransactionsTable({
+    transactionsData,
+}: {
+    transactionsData: Transaction[];
+}) {
     const formatCurrency = (amount: number) => {
         return new Intl.NumberFormat('pl-PL', {
             style: 'currency',
@@ -105,12 +41,14 @@ export function TransactionsTable() {
         }).format(amount);
     };
 
-    const formatDate = (dateString: string) => {
+    const formatDate = (date: Date | string): string => {
+        const parsedDate = typeof date === 'string' ? new Date(date) : date;
+
         return new Intl.DateTimeFormat('pl-PL', {
             day: '2-digit',
             month: 'short',
             year: 'numeric',
-        }).format(new Date(dateString));
+        }).format(parsedDate);
     };
 
     return (
@@ -119,22 +57,22 @@ export function TransactionsTable() {
                 <TableHeader>
                     <TableRow className='hover:bg-transparent border-border'>
                         <TableHead className='font-semibold text-muted-foreground'>
-                            Opis
+                            Title
                         </TableHead>
                         <TableHead className='font-semibold text-muted-foreground'>
-                            Kategoria
+                            Category
                         </TableHead>
                         <TableHead className='font-semibold text-muted-foreground'>
-                            Data
+                            Date
                         </TableHead>
                         <TableHead className='text-right font-semibold text-muted-foreground'>
-                            Kwota
+                            Amount
                         </TableHead>
                         <TableHead className='w-[50px]'></TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {transactions.map((transaction) => (
+                    {transactionsData.map((transaction) => (
                         <TableRow
                             key={transaction.id}
                             className='border-border hover:bg-muted/50 transition-colors'>
@@ -142,11 +80,11 @@ export function TransactionsTable() {
                                 <div className='flex items-center gap-3'>
                                     <div
                                         className={`flex h-10 w-10 items-center justify-center rounded-lg ${
-                                            transaction.type === 'income'
+                                            transaction.type === 'INCOME'
                                                 ? 'bg-income/10 text-income'
                                                 : 'bg-destructive/10 text-destructive'
                                         }`}>
-                                        {transaction.type === 'income' ? (
+                                        {transaction.type === 'INCOME' ? (
                                             <ArrowDownIcon className='h-5 w-5' />
                                         ) : (
                                             <ArrowUpIcon className='h-5 w-5' />
@@ -154,7 +92,7 @@ export function TransactionsTable() {
                                     </div>
                                     <div>
                                         <div className='font-medium text-foreground'>
-                                            {transaction.description}
+                                            {transaction.title}
                                         </div>
                                     </div>
                                 </div>
@@ -168,11 +106,11 @@ export function TransactionsTable() {
                             <TableCell className='text-right'>
                                 <span
                                     className={`font-semibold ${
-                                        transaction.type === 'income'
+                                        transaction.type === 'INCOME'
                                             ? 'text-income'
                                             : 'text-destructive'
                                     }`}>
-                                    {transaction.type === 'income' ? '+' : '-'}
+                                    {transaction.type === 'INCOME' ? '+' : '-'}
                                     {formatCurrency(transaction.amount)}
                                 </span>
                             </TableCell>
@@ -191,19 +129,18 @@ export function TransactionsTable() {
                                     </DropdownMenuTrigger>
                                     <DropdownMenuContent
                                         align='end'
-                                        className='w-[160px]'>
-                                        <DropdownMenuLabel>
-                                            Akcje
-                                        </DropdownMenuLabel>
-                                        <DropdownMenuSeparator />
+                                        className='w-[160px] cursor-pointer'>
                                         <DropdownMenuItem>
                                             Edytuj
                                         </DropdownMenuItem>
-                                        <DropdownMenuItem>
-                                            Duplikuj
-                                        </DropdownMenuItem>
                                         <DropdownMenuSeparator />
-                                        <DropdownMenuItem className='text-destructive'>
+                                        <DropdownMenuItem
+                                            onClick={() =>
+                                                deleteTransactionAction(
+                                                    transaction.id
+                                                )
+                                            }
+                                            className='text-destructive cursor-pointer'>
                                             Usuń
                                         </DropdownMenuItem>
                                     </DropdownMenuContent>

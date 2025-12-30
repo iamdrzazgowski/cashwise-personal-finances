@@ -17,7 +17,10 @@ export default async function TransactionPage() {
         session.user.id
     );
 
-    console.log(userTransactions);
+    const transactions = userTransactions.map((transaction) => ({
+        ...transaction,
+        amount: transaction.amount.toNumber(),
+    }));
 
     return (
         <div className='mx-auto max-w-7xl min-w-6xl space-y-6'>
@@ -35,7 +38,7 @@ export default async function TransactionPage() {
 
             <Card className='border-border'>
                 <CardContent className='p-0'>
-                    <TransactionsTable />
+                    <TransactionsTable transactionsData={transactions} />
                 </CardContent>
             </Card>
         </div>

@@ -1,6 +1,7 @@
 import prisma from '../prisma';
 
 interface TransactionFormData {
+    id: string;
     type: 'INCOME' | 'EXPENSE';
     title: string;
     category: string;
@@ -15,6 +16,9 @@ export const transactionRepository = {
             where: {
                 userId,
             },
+            orderBy: {
+                createdAt: 'desc',
+            },
         });
     },
     create(userId: string, transactionData: TransactionFormData) {
@@ -22,6 +26,14 @@ export const transactionRepository = {
             data: {
                 userId,
                 ...transactionData,
+            },
+        });
+    },
+    delete(userId: string, transactionId: string) {
+        return prisma.transaction.delete({
+            where: {
+                id: transactionId,
+                userId: userId,
             },
         });
     },

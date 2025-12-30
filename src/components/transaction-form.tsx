@@ -20,11 +20,12 @@ import { createTransactionAction } from '@/actions/transactions';
 import { Spinner } from './ui/spinner';
 
 export interface TransactionFormData {
+    id: string;
     type: 'INCOME' | 'EXPENSE';
     title: string;
     category: string;
     amount: number;
-    date: string;
+    date: Date;
     note: string | null;
 }
 
