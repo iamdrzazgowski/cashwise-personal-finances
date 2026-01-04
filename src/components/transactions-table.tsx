@@ -97,7 +97,7 @@ export function TransactionsTable({
                                         )}
                                     </div>
                                     <div>
-                                        <div className='font-medium text-foreground'>
+                                        <div className='font-medium text-foreground whitespace-normal wrap-break-word'>
                                             {transaction.title}
                                         </div>
                                     </div>
