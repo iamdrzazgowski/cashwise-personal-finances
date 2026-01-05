@@ -34,7 +34,7 @@ export default function AddTransactionDialog() {
                     <DialogTitle>Add Transaction</DialogTitle>
                     <DialogDescription>
                         Add a new transaction here. Fill in the details and
-                        click &quot;Save changes&quot; when you&apos;re done.
+                        click &quot;Add Transaction&quot; when you&apos;re done.
                     </DialogDescription>
                 </DialogHeader>
 

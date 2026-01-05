@@ -1,3 +1,4 @@
+import TransactionsChart from '@/components/transactions-chart';
 import { TransactionsTable } from '@/components/transactions-table';
 import StatCard from '@/components/ui/stat-card';
 import { auth } from '@/lib/auth';
@@ -60,6 +61,23 @@ export default async function Dashboard() {
         { balance: 0, income: 0, expense: 0 }
     );
 
+    const expenseByCategoryObj = transactions.reduce((acc, tx) => {
+        if (tx.type !== 'EXPENSE') return acc;
+
+        const date = new Date(tx.date);
+
+        if (date < startOfMonth && date > endOfMonth) return acc;
+
+        acc[tx.category.toLowerCase()] =
+            (acc[tx.category.toLowerCase()] || 0) + tx.amount;
+
+        return acc;
+    }, {} as Record<string, number>);
+
+    const expenseByCategory = Object.entries(expenseByCategoryObj).map(
+        ([category, amount]) => ({ category, amount })
+    );
+
     return (
         <div className='flex flex-1 flex-col gap-4 p-4 pt-0'>
             <div className='grid gap-4 md:grid-cols-3'>
@@ -117,7 +135,9 @@ export default async function Dashboard() {
                         )}
                     </div>
                 </div>
-                <div className='bg-muted/50 rounded-xl h-full shadow-sm' />
+                <div className='bg-muted/50 rounded-xl h-full shadow-sm'>
+                    <TransactionsChart expenseData={expenseByCategory} />
+                </div>
             </div>
         </div>
     );
