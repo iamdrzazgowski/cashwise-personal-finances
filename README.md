@@ -24,7 +24,6 @@ fast, responsive, and intuitive, built using modern web technologies.
 | Backend        | Next.js Server Actions, Prisma ORM                                   |
 | Database       | PostgreSQL                                                           |
 | Authentication | Better Auth                                                          |
-| Other          | TypeScript, Prisma for database schema management                    |
 
 ---
 
