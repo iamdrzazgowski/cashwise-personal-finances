@@ -117,7 +117,7 @@ export default function HeroSection() {
                                     {/* Obrazek do trybu dark */}
                                     <Image
                                         className='hidden dark:block rounded-2xl object-cover w-full h-auto'
-                                        src='/teamtasks.jpg'
+                                        src='/app-design-dark-theme.jpg'
                                         alt='app screen'
                                         width={2700}
                                         height={1440}
@@ -126,7 +126,7 @@ export default function HeroSection() {
                                     {/* Obrazek do trybu light */}
                                     <Image
                                         className='block dark:hidden rounded-2xl object-cover w-full h-auto'
-                                        src='/teamtasks.jpg'
+                                        src='/app-design-light-theme.jpg'
                                         alt='app screen'
                                         width={2700}
                                         height={1440}

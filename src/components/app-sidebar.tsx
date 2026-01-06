@@ -23,13 +23,9 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
 import Link from 'next/link';
+import { Logo } from './logo';
 
 const data = {
-    user: {
-        name: 'shadcn',
-        email: 'm@example.com',
-        avatar: '/avatars/shadcn.jpg',
-    },
     navMain: [
         {
             title: 'Dashboard',
@@ -61,22 +57,37 @@ const data = {
     ],
 };
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+interface UserData {
+    name: string;
+    email: string;
+    emailVerified: boolean;
+    image?: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    id: string;
+}
+
+interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
+    userData: UserData;
+}
+
+export function AppSidebar({ userData, ...props }: AppSidebarProps) {
     return (
         <Sidebar variant='inset' {...props}>
             <SidebarHeader>
                 <SidebarMenu>
                     <SidebarMenuItem>
-                        <SidebarMenuButton size='lg' asChild>
+                        <SidebarMenuButton size='lg'>
                             <Link href='/dashboard'>
-                                <div className='bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg'>
+                                {/* <div className='bg-sidebar-primary text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg'>
                                     <PiggyBank className='size-4' />
                                 </div>
                                 <div className='grid flex-1 text-left text-sm leading-tight'>
                                     <span className='truncate font-medium'>
                                         CashWise
                                     </span>
-                                </div>
+                                </div> */}
+                                <Logo className='h-8 w-auto' />
                             </Link>
                         </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -87,7 +98,13 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 {/* <NavSecondary items={data.navSecondary} className='mt-auto' /> */}
             </SidebarContent>
             <SidebarFooter>
-                <NavUser user={data.user} />
+                <NavUser
+                    user={{
+                        name: userData.name,
+                        email: userData.email,
+                        avatar: userData.image ?? '',
+                    }}
+                />
             </SidebarFooter>
         </Sidebar>
     );
